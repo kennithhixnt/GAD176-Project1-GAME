@@ -6,8 +6,6 @@ public class PlayerHealth : MonoBehaviour
 {
     public int playerHealth = 2;
     
-    
-    
     // Start is called before the first frame update
     void Start()
     {
