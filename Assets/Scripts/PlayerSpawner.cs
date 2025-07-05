@@ -1,58 +1,86 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine;
 
 public class PlayerSpawner : MonoBehaviour
 {
-    [Header("Player Prefab and Configs")]
+    [System.Serializable]
+    public class PlayerConfig
+    {
+        public string playerName;
+        public Transform spawnPoint;
+        public Color trailColor;
+        public KeyCode turnLeft;
+        public KeyCode turnRight;
+    }
+
     public GameObject playerPrefab;
     public PlayerConfig[] playerConfigs;
 
-    private void Start()
+    void Start()
     {
-        foreach (var config in playerConfigs)
-        {
-            //Instantiate player at their start position
-            GameObject player = Instantiate(playerPrefab, config.startPosition, Quaternion.identity);
-            player.name = config.playerName;
+        Debug.Log("Spawning players...");
+        SpawnPlayers();
+    }
 
-            // Assign controls to TrailPlayer
-            TrailPlayer controller = player.GetComponent<TrailPlayer>();
-            if (controller != null)
-            {
-                controller.turnLeft = config.turnLeft;
-                controller.turnRight = config.turnRight;
-            }
-            
-            // Get the player's SpriteRenderer
-            var sprite = player.GetComponentInChildren<SpriteRenderer>();
-            Color visibleColor = config.trailColor;
-            visibleColor.a = 1f; // make sure alpha is fully visible
 
-            if (sprite != null)
-            {
-                // Set player color
-                sprite.color = visibleColor;
-            }
+    public void SpawnPlayers()
+    {
+            Debug.Log($"Spawning {playerConfigs.Length} players");
 
-            // Now set trail color to match the player color
-            TrailManager trailManager = player.GetComponent<TrailManager>();
-            if (trailManager != null)
+            for (int i = 0; i < playerConfigs.Length; i++)
             {
-                LineRenderer line = trailManager.GetComponentInChildren<LineRenderer>();
-                if (line != null)
+                PlayerConfig config = playerConfigs[i];
+                if (config.spawnPoint == null)
                 {
-                    line.startColor = visibleColor;
-                    line.endColor = visibleColor;
+                    Debug.LogWarning($"Spawn point missing for {config.playerName}, skipping.");
+                    continue;
+                }
+
+                GameObject player = Instantiate(playerPrefab, config.spawnPoint.position, config.spawnPoint.rotation);
+                player.name = config.playerName;
+
+                // Set input keys
+                TrailPlayer trailPlayer = player.GetComponent<TrailPlayer>();
+                if (trailPlayer != null)
+                {
+                    trailPlayer.turnLeft = config.turnLeft;
+                    trailPlayer.turnRight = config.turnRight;
+                }
+
+                // Set player sprite color (make sure it's the right SpriteRenderer!)
+                SpriteRenderer sprite = player.GetComponentInChildren<SpriteRenderer>();
+                if (sprite != null)
+                {
+                    sprite.color = config.trailColor; // Set player visible color
+                }
+                else
+                {
+                    Debug.LogWarning($"SpriteRenderer not found on player prefab for {config.playerName}");
+                }
+
+                // Set trail color
+                TrailManager trail = player.GetComponent<TrailManager>();
+                if (trail != null)
+                {
+                    trail.SetTrailColor(config.trailColor);
+                }
+                else
+                {
+                    Debug.LogWarning($"TrailManager not found on player prefab for {config.playerName}");
                 }
             }
-        
-
-            // Optional debug
-            Debug.Log($"{config.playerName} spawned with color: {visibleColor}");
-        }
     }
 }
+
+
+
+
+        
+    
+
+
 
 
 

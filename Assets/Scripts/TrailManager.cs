@@ -7,78 +7,94 @@ public class TrailManager : MonoBehaviour
 {
     [Header("Prefab Reference")]
     public GameObject trailSegmentPrefab;
+    [Header("Trail Settings")]
+    public float pointSpacing = 0.2f;
+    public float trailWidth = 0.1f;
+    public GameObject trailColliderPrefab;
 
     private LineRenderer lineRenderer;
     private List<Vector3> trailPoints = new List<Vector3>();
     private float updateDistance = 0.1f;
+    private Vector3 lastPoint;
 
     void Awake()
     {
+        // Get LineRenderer
         lineRenderer = GetComponent<LineRenderer>();
-    }
 
-    // Call this once at spawn to initialize the trail
-    public void StartTrail(Vector3 startPos)
-    {
-        trailPoints.Clear();
-        trailPoints.Add(startPos);
-
-        lineRenderer.positionCount = 1;
-        lineRenderer.SetPosition(0, startPos);
-    }
-
-    // Call this every frame to update the trail
-    public void UpdateTrail(Vector3 currentPos)
-    {
-        // Safeguard: If trail was never started, initialize it
-        if (trailPoints.Count == 0)
+        if (lineRenderer == null)
         {
-            StartTrail(currentPos);
+            Debug.LogError("LineRenderer missing from GameObject.");
             return;
         }
 
-        Vector3 lastPoint = trailPoints[trailPoints.Count - 1];
+        // Setup
+        lineRenderer.useWorldSpace = true;
+        lineRenderer.positionCount = 0;
+        lineRenderer.startWidth = trailWidth;
+        lineRenderer.endWidth = trailWidth;
 
-        if (Vector3.Distance(lastPoint, currentPos) > updateDistance)
+        if (lineRenderer.material == null)
         {
-            trailPoints.Add(currentPos);
+            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        }
 
-            lineRenderer.positionCount = trailPoints.Count;
-            lineRenderer.SetPositions(trailPoints.ToArray());
+        AddPoint(transform.position);
+    }
 
-            CreateSegment(lastPoint, currentPos);
+    private void Update()
+    {
+        if (Vector3.Distance(transform.position, lastPoint) >= pointSpacing)
+        {
+            AddPoint(transform.position);
         }
     }
 
-    // Spawns a single trail segment between two points
-    private void CreateSegment(Vector3 from, Vector3 to)
+    private void AddPoint(Vector3 point)
     {
-        Vector3 pos = (from + to) / 2f;
-        Vector3 dir = to - from;
-        float distance = dir.magnitude;
+        // Update trail visuals
+        trailPoints.Add(point);
+        lineRenderer.positionCount = trailPoints.Count;
+        lineRenderer.SetPosition(trailPoints.Count - 1, point);
+        lastPoint = point;
 
-        GameObject segment = Instantiate(trailSegmentPrefab, pos, Quaternion.identity);
-        segment.transform.up = dir.normalized;
-        segment.transform.localScale = new Vector3(0.1f, distance, 1f);
-
-        // Set the owner on the segment
-        TrailSegment ts = segment.GetComponent<TrailSegment>();
-        if (ts != null)
+        // Spawn a collider object for trail collision
+        if (trailColliderPrefab != null)
         {
-            ts.owner = this.gameObject;
+            GameObject piece = Instantiate(trailColliderPrefab, point, Quaternion.identity);
+            piece.tag = "Trail"; // must match tag check in collision
+            piece.layer = gameObject.layer; // optional: match player's layer
+            piece.transform.localScale = new Vector3(trailWidth, trailWidth, 1f);
+
+            // Attach trail identity so we know who made this trail
+            TrailIdentity identity = piece.AddComponent<TrailIdentity>();
+            identity.owner = this.gameObject;
         }
+    }
 
-        // Match the color of the segment to the LineRenderer
-        SpriteRenderer sr = segment.GetComponent<SpriteRenderer>();
-        if (sr != null)
+    public void SetTrailColor(Color color)
+    {
+        if (lineRenderer == null)
+            lineRenderer = GetComponent<LineRenderer>();
+
+        if (lineRenderer != null)
         {
-            Color color = Color.white;
-            if (lineRenderer.material.HasProperty("_Color"))
-                color = lineRenderer.material.color;
-            sr.color = color;
+            lineRenderer.startColor = color;
+            lineRenderer.endColor = color;
+            if (lineRenderer.material != null)
+            {
+                lineRenderer.material.color = color;
+            }
+        }
+        else
+        {
+            Debug.LogError("LineRenderer missing when trying to set trail color.");
         }
     }
 }
+
+
+
 
 
 

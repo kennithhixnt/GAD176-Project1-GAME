@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7111549467560331812}
   - component: {fileID: 8859860814344549032}
   - component: {fileID: 9139230668235712586}
-  - component: {fileID: 2468655323597911997}
+  - component: {fileID: 2093921431883188839}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -188,7 +188,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c3d39b39812cc264189fa7402204892b, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -220,7 +220,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0
+        value: 0.09859155
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -271,7 +271,7 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
---- !u!114 &2468655323597911997
+--- !u!114 &2093921431883188839
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -283,4 +283,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be3a10307c7cb4142bf93bc8065b1621, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trailSegmentPrefab: {fileID: 6281214709673884494, guid: 397247dac2eef394796f33c875cd9f70, type: 3}
+  pointSpacing: 0.2
+  trailWidth: 0.1
+  trailColliderPrefab: {fileID: 1050480748917644323, guid: 1df9b45a0c5f28f45bafda0b1127efe7, type: 3}

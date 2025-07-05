@@ -2,60 +2,84 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class TrailPlayer : MonoBehaviour
 {
-    public KeyCode turnLeft;
-    public KeyCode turnRight;
+    [Header("Controls")]
+    public KeyCode turnLeft = KeyCode.A;
+    public KeyCode turnRight = KeyCode.D;
 
-    public float moveSpeed = 5f;
-    public float turnSpeed = 200f;
+    [Header("Movement Settings")]
+    public float moveSpeed = 1f;
+    public float turnSpeed = 180f;
 
+    private Rigidbody2D rb;
     private bool isAlive = true;
 
-    void Update()
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        if (rb == null)
+        {
+            Debug.LogError("TrailPlayer requires a Rigidbody2D.");
+        }
+
+        // Freeze rotation if using velocity-based movement
+        rb.freezeRotation = true;
+        rb.gravityScale = 0;
+    }
+
+    private void Update()
     {
         if (!isAlive) return;
 
-        // Basic forward movement
-        transform.Translate(Vector3.up * (moveSpeed * Time.deltaTime));
-
-        // Turning controls
+        // Handle rotation
         if (Input.GetKey(turnLeft))
         {
             transform.Rotate(Vector3.forward * (turnSpeed * Time.deltaTime));
         }
-        else if (Input.GetKey(turnRight))
+        if (Input.GetKey(turnRight))
         {
             transform.Rotate(Vector3.back * (turnSpeed * Time.deltaTime));
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        // Add logic for hitting trails or walls here
-        // Example: if player hits a trail tagged as "Trail"
-        if (collision.CompareTag("Trail") || collision.CompareTag("Wall"))
-        {
-            Die();
-        }
-    }
-
-    public void Die()
+    private void FixedUpdate()
     {
         if (!isAlive) return;
 
-        isAlive = false;
+        // Constant forward movement
+        rb.velocity = transform.up * moveSpeed;
+    }
 
-        // Notify GameManager the player died
-        if (GameManager.Instance != null)
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!isAlive) return;
+
+        if (other.CompareTag("Wall"))
         {
-            GameManager.Instance.PlayerDied();
+            Debug.Log($"{name} hit a wall!");
+            Die();
         }
+        else if (other.CompareTag("Trail"))
+        {
+            TrailIdentity identity = other.GetComponent<TrailIdentity>();
 
-        // Disable the player visually and functionally
+            if (identity != null && identity.owner != this.gameObject)
+            {
+                Debug.Log($"{name} hit another player's trail!");
+                Die();
+            }
+        }
+    }
+
+    private void Die()
+    {
+        isAlive = false;
+        rb.velocity = Vector2.zero;
         gameObject.SetActive(false);
 
-        // Optional: add death effects, sounds, etc.
+     
     }
 }
 
