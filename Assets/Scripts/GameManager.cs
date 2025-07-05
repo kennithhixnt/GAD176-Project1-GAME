@@ -1,37 +1,75 @@
-using System.Collections;
+    using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-    public List<GameObject> players = new List<GameObject>();
 
-    void Awake()
+    [Header("Player Settings")]
+    public int totalPlayers = 4; // Set this to your actual number of players at start
+    private int alivePlayers;
+
+    [Header("UI Elements")]
+    public Button restartButton;
+
+    private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-    }
-
-    public void PlayerDied(GameObject player)
-    {
-        players.Remove(player);
-
-        if (players.Count == 1)
+        // Singleton pattern
+        if (Instance == null)
         {
-            Debug.Log($"{players[0].name} wins!");
-            // TODO: Show UI or restart game
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-        else if (players.Count == 0)
+        else
         {
-            Debug.Log("Draw!");
+            Destroy(gameObject);
+            return;
         }
-    }
-    void Start()
-    {
-        Debug.Log("Time scale: " + Time.timeScale); // Should be 1
     }
 
+    private void Start()
+    {
+        alivePlayers = totalPlayers;
+
+        if (restartButton != null)
+        {
+            restartButton.gameObject.SetActive(false);
+            restartButton.onClick.RemoveAllListeners();
+            restartButton.onClick.AddListener(RestartGame);
+        }
+        else
+        {
+            Debug.LogWarning("Restart Button not assigned in GameManager.");
+        }
+    }
+
+// Call this method whenever a player dies/eliminated
+   
+    public void PlayerDied()
+    {
+        alivePlayers = Mathf.Max(0, alivePlayers - 1);
+
+        if (alivePlayers <= 1)
+        {
+            if (restartButton != null)
+            {
+                restartButton.gameObject.SetActive(true);
+                Debug.Log("Only one player left — showing restart button.");
+            }
+        }
+    }
+
+    /// Reload the current scene to restart the game
+   
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
 }
+
+
 
 

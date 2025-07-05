@@ -3,32 +3,57 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerSpawner : MonoBehaviour
-
 {
+    [Header("Player Prefab and Configs")]
     public GameObject playerPrefab;
     public PlayerConfig[] playerConfigs;
 
-    void Start()
+    private void Start()
     {
         foreach (var config in playerConfigs)
         {
+            //Instantiate player at their start position
             GameObject player = Instantiate(playerPrefab, config.startPosition, Quaternion.identity);
             player.name = config.playerName;
 
-            var trailPlayer = player.GetComponent<TrailPlayer>();
-            trailPlayer.turnLeft = config.turnLeft;
-            trailPlayer.turnRight = config.turnRight;
-
-            var trailManager = player.GetComponent<TrailManager>();
-            if (trailManager != null)
+            // Assign controls to TrailPlayer
+            TrailPlayer controller = player.GetComponent<TrailPlayer>();
+            if (controller != null)
             {
-                var line = trailManager.GetComponent<LineRenderer>();
-                line.material.color = config.trailColor;
+                controller.turnLeft = config.turnLeft;
+                controller.turnRight = config.turnRight;
+            }
+            
+            // Get the player's SpriteRenderer
+            var sprite = player.GetComponentInChildren<SpriteRenderer>();
+            Color visibleColor = config.trailColor;
+            visibleColor.a = 1f; // make sure alpha is fully visible
+
+            if (sprite != null)
+            {
+                // Set player color
+                sprite.color = visibleColor;
             }
 
-            GameManager.Instance.players.Add(player);
+            // Now set trail color to match the player color
+            TrailManager trailManager = player.GetComponent<TrailManager>();
+            if (trailManager != null)
+            {
+                LineRenderer line = trailManager.GetComponentInChildren<LineRenderer>();
+                if (line != null)
+                {
+                    line.startColor = visibleColor;
+                    line.endColor = visibleColor;
+                }
+            }
+        
+
+            // Optional debug
+            Debug.Log($"{config.playerName} spawned with color: {visibleColor}");
         }
     }
 }
+
+
 
 

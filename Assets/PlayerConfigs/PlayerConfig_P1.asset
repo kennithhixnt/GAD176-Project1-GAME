@@ -15,5 +15,5 @@ MonoBehaviour:
   playerName: Player 1
   turnLeft: 97
   turnRight: 100
-  trailColor: {r: 0.12459949, g: 0.25891596, b: 0.754717, a: 0}
+  trailColor: {r: 0.12459949, g: 0.25891596, b: 0.754717, a: 1}
   startPosition: {x: -8, y: -4}

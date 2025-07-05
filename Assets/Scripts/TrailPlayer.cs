@@ -2,49 +2,63 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TrailPlayer : PlayerBase
+public class TrailPlayer : MonoBehaviour
 {
-    [Header("Input Keys")]
-    public KeyCode turnLeft = KeyCode.A;
-    public KeyCode turnRight = KeyCode.D;
+    public KeyCode turnLeft;
+    public KeyCode turnRight;
 
-    [Header("Trail")]
-    public TrailManager trailManager;
+    public float moveSpeed = 5f;
+    public float turnSpeed = 200f;
 
-    private void Start()
+    private bool isAlive = true;
+
+    void Update()
     {
-        trailManager.UpdateTrail(transform.position);
-        base.Update();
-        trailManager.StartTrail(transform.position);
-    }
+        if (!isAlive) return;
 
-    public override void HandleInput()
-    {
-        float turn = 0f;
-        if (Input.GetKey(turnLeft)) turn += 1f;
-        if (Input.GetKey(turnRight)) turn -= 1f;
-        transform.Rotate(0f, 0f, turn * turnSpeed * Time.deltaTime);
-    }
+        // Basic forward movement
+        transform.Translate(Vector3.up * (moveSpeed * Time.deltaTime));
 
-    protected override void Update()
-    {
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Trail"))
+        // Turning controls
+        if (Input.GetKey(turnLeft))
         {
-            TrailSegment trail = other.GetComponent<TrailSegment>();
-            if (trail != null && trail.owner != this.gameObject)
-            {
-                Debug.Log($"{gameObject.name} hit another player's trail!");
-                Destroy(this.gameObject);
-                GameManager.Instance.PlayerDied(this.gameObject);
-            }
+            transform.Rotate(Vector3.forward * (turnSpeed * Time.deltaTime));
+        }
+        else if (Input.GetKey(turnRight))
+        {
+            transform.Rotate(Vector3.back * (turnSpeed * Time.deltaTime));
         }
     }
-    
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        // Add logic for hitting trails or walls here
+        // Example: if player hits a trail tagged as "Trail"
+        if (collision.CompareTag("Trail") || collision.CompareTag("Wall"))
+        {
+            Die();
+        }
+    }
+
+    public void Die()
+    {
+        if (!isAlive) return;
+
+        isAlive = false;
+
+        // Notify GameManager the player died
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.PlayerDied();
+        }
+
+        // Disable the player visually and functionally
+        gameObject.SetActive(false);
+
+        // Optional: add death effects, sounds, etc.
+    }
 }
+
+
 
 

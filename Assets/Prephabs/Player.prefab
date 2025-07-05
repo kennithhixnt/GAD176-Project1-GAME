@@ -163,11 +163,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c60dfca4098d401b80433d06611d345b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
-  turnSpeed: 200
   turnLeft: 97
   turnRight: 100
-  trailManager: {fileID: 2468655323597911997}
+  moveSpeed: 1
+  turnSpeed: 200
 --- !u!120 &9139230668235712586
 LineRenderer:
   serializedVersion: 2
@@ -189,7 +188,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: c3d39b39812cc264189fa7402204892b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
