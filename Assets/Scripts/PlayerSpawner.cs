@@ -15,8 +15,8 @@ public class PlayerSpawner : MonoBehaviour
         public KeyCode turnRight;
     }
 
-    public GameObject playerPrefab;
-    public PlayerConfig[] playerConfigs;
+    public GameObject playerPrefab; // The prefab to use when creating player instances
+    public PlayerConfig[] playerConfigs;  // Array of player configurations to loop through
 
     void Start()
     {
@@ -24,7 +24,9 @@ public class PlayerSpawner : MonoBehaviour
         SpawnPlayers();
     }
 
-
+    /// <summary>
+    /// Spawns each player according to their PlayerConfig settings.
+    /// </summary>
     public void SpawnPlayers()
     {
             Debug.Log($"Spawning {playerConfigs.Length} players");

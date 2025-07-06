@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     [Header("UI Elements")]
     public Button restartButton;
 
-    private void Awake()
+    public void Awake()
     {
         // Singleton pattern
         if (Instance == null)
@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    public void Start()
     {
         alivePlayers = totalPlayers;
 
@@ -46,7 +46,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-// Call this method whenever a player dies/eliminated
+    /// <summary>
+    /// Call this whenever a player dies in the game.
+    /// </summary>
    
     public void PlayerDied()
     {
@@ -69,6 +71,7 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
+
 
 
 

@@ -12,13 +12,10 @@ public class PlayerConfig : ScriptableObject
     public Color trailColor;
     public Vector2 startPosition;
 
-    public void update()
+    public void Update()
     {
         foreach (var config in playerConfigs)
         {
-            // Your existing code…
-
-            // ✅ Put the debug line here — inside the loop!
             Debug.Log($"{config.playerName} color: {config.trailColor}, alpha: {config.trailColor.a}");
         }
     }

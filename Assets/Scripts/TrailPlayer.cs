@@ -5,19 +5,19 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class TrailPlayer : MonoBehaviour
 {
-    [Header("Controls")]
-    public KeyCode turnLeft = KeyCode.A;
+    [Header("Controls")] public KeyCode turnLeft = KeyCode.A;
     public KeyCode turnRight = KeyCode.D;
 
-    [Header("Movement Settings")]
-    public float moveSpeed = 1f;
+    [Header("Movement Settings")] public float moveSpeed = 1f;
     public float turnSpeed = 180f;
 
-    private Rigidbody2D rb;
-    private bool isAlive = true;
+    public Rigidbody2D rb; // Rigidbody2D for physics-based movement
+    public bool isAlive = true;
 
-    private void Start()
+    public void Start()
     {
+        // Get the Rigidbody2D component attached to this GameObject
+
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
         {
@@ -29,8 +29,9 @@ public class TrailPlayer : MonoBehaviour
         rb.gravityScale = 0;
     }
 
-    private void Update()
+    public void Update()
     {
+        // check if player dead, stops proccessing inputs
         if (!isAlive) return;
 
         // Handle rotation
@@ -38,33 +39,38 @@ public class TrailPlayer : MonoBehaviour
         {
             transform.Rotate(Vector3.forward * (turnSpeed * Time.deltaTime));
         }
+
         if (Input.GetKey(turnRight))
         {
             transform.Rotate(Vector3.back * (turnSpeed * Time.deltaTime));
         }
     }
 
-    private void FixedUpdate()
+    public void FixedUpdate()
     {
+        // If the player is dead, stop moving
         if (!isAlive) return;
 
         // Constant forward movement
         rb.velocity = transform.up * moveSpeed;
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    public void OnTriggerEnter2D(Collider2D other)
     {
+        // Ignore collisions if already dead
         if (!isAlive) return;
 
         if (other.CompareTag("Wall"))
         {
+            // Player hit a wall — die immediately
             Debug.Log($"{name} hit a wall!");
             Die();
         }
+        // Player hit a trail check if it's someone else’s trail
         else if (other.CompareTag("Trail"))
         {
             TrailIdentity identity = other.GetComponent<TrailIdentity>();
-
+// If the trail belongs to another player, die
             if (identity != null && identity.owner != this.gameObject)
             {
                 Debug.Log($"{name} hit another player's trail!");
@@ -73,13 +79,14 @@ public class TrailPlayer : MonoBehaviour
         }
     }
 
-    private void Die()
+    /// <summary>
+    /// Kills the player — stops movement and disables the GameObject.
+    /// </summary>
+    public void Die()
     {
         isAlive = false;
         rb.velocity = Vector2.zero;
         gameObject.SetActive(false);
-
-     
     }
 }
 
